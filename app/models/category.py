@@ -1,15 +1,17 @@
-from app.backend.db import Base
-from sqlalchemy import Column, ForeignKey, Integer, String, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Boolean, ForeignKey, String
+from app.backend.db import Base, str50, pk
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from app.models.product import Product
 
 
 class Category(Base):
     __tablename__ = 'categories'
-    __table_args__ = {'extend_existing': True}
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    slug = Column(String, unique=True, index=True)
-    is_active = Column(Boolean, default=True)
-    parent_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
 
-    products = relationship("Product", back_populates="category")
+    id: Mapped[pk]
+    name: Mapped[str50]
+    slug: Mapped[str] = mapped_column(String, unique=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    parent_id: Mapped[int] = mapped_column(ForeignKey('category.id'), nullable=True)
+
+    products: Mapped[list['Product']] = relationship(back_populates='category')

@@ -1,14 +1,13 @@
 from fastapi import FastAPI
-from app.routers import category, products
-from app.routers import auth
+from routers.category import router
+import uvicorn
+
 
 app = FastAPI()
 
-@app.get("/")
-async def welcome() -> dict:
-    return {"message": "Me e-commerce app"}
+app.include_router(router)
 
 
-app.include_router(category.router)
-app.include_router(products.router)
-app.include_router(auth.router)
+if __name__ == '__main__':
+    uvicorn.run('main:app', reload=True)
+    
