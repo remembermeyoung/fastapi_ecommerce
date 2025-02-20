@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers.category import router
+from app.routers.category import router
 import uvicorn
 
 
