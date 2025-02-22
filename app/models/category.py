@@ -1,6 +1,8 @@
+from typing import List
+
 from sqlalchemy import Boolean, ForeignKey, String
-from app.backend.db import Base, str50, pk
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.backend.db import Base, str50, pk
 
 
 class Category(Base):
@@ -12,4 +14,4 @@ class Category(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     parent_id: Mapped[int] = mapped_column(ForeignKey('categories.id'), nullable=True)
 
-    products: Mapped[list['Product']] = relationship(back_populates='category')
+    products: Mapped[List['Product']] = relationship(back_populates='category')

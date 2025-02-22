@@ -1,4 +1,4 @@
-from app.backend.db import Base
+#from __future__ import annotations
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Float
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.backend.db import Base, str50, pk
@@ -18,6 +18,6 @@ class Product(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     category_id: Mapped[int] = mapped_column(ForeignKey('categories.id'))
-    category: Mapped['Category'] = relationship(back_populates='products')
+    category: Mapped['Category'] = relationship('Category', back_populates='products')
 
 
