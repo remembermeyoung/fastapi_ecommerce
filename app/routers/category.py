@@ -9,10 +9,10 @@ from app.models.category import Category
 from app.models.product import Product
 from app.schemas import CreateCategory
 
-router = APIRouter(prefix='/categories', tags=['category'])
+cat_router = APIRouter(prefix='/categories', tags=['category'])
 
 
-@router.get('/')
+@cat_router.get('/')
 async def get_all_categories(db: Annotated[AsyncSession, Depends(get_db)]):
     query = select(Category).filter_by(is_active=True)
     categories = await db.scalars(query)
@@ -20,7 +20,7 @@ async def get_all_categories(db: Annotated[AsyncSession, Depends(get_db)]):
     return result
 
 
-@router.post('/', status_code=status.HTTP_201_CREATED)
+@cat_router.post('/', status_code=status.HTTP_201_CREATED)
 async def create_category(db: Annotated[AsyncSession, Depends(get_db)], new_cat: CreateCategory):
     query = insert(Category).values(name=new_cat.name,
                                     parent_id=new_cat.parent_id,
@@ -33,7 +33,7 @@ async def create_category(db: Annotated[AsyncSession, Depends(get_db)], new_cat:
     }
 
 
-@router.put('/')
+@cat_router.put('/')
 async def update_category(db: Annotated[AsyncSession, Depends(get_db)],
                           category_id: int, update_category: CreateCategory):
     select_query = select(Category).filter_by(id=category_id)
@@ -53,7 +53,7 @@ async def update_category(db: Annotated[AsyncSession, Depends(get_db)],
         )
 
 
-@router.delete('/')
+@cat_router.delete('/')
 async def delete_category(db: Annotated[AsyncSession, Depends(get_db)], category_id: int):
     select_query = select(Category).filter_by(id=category_id)
     category = await db.scalar(select_query)

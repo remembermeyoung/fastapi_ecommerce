@@ -1,4 +1,3 @@
-#from __future__ import annotations
 from sqlalchemy import Column, ForeignKey, Integer, String, Boolean, Float
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.backend.db import Base, str50, pk
