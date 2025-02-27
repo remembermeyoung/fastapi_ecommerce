@@ -43,19 +43,22 @@ async def product_detail(db: Annotated[AsyncSession, Depends(get_db)], product_s
 @prod_router.get('/category/{category_slug}')
 async def product_by_category(db: Annotated[AsyncSession, Depends(get_db)], category_slug: str):
 
-    get_subcat = (select(Category.id).where(Category.parent_id.in_(
-        select(Category.id).where(Category.slug == category_slug))).subquery())
+    get_main_cat = select(Category).where(Category.slug == category_slug)
+    main_cat = await db.scalar(get_main_cat)
 
-    get_subcategories = select(Category).where(
-        Category.id.in_(get_subcat))
+    if main_cat:
+        get_subcategories = select(Category).filter_by(id=main_cat.id)
+        subcategories = await db.scalars(get_subcategories)
+        subcategories = subcategories.all()
+        subcategories.append(main_cat)
 
-    get_category = select(Category).where(Category.slug == category_slug)
+        return [cat.products for cat in subcategories]
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='There is no category found'
 
-    query = union_all(get_category, get_subcategories)
-
-    categories = await db.scalars(query)
-    print(categories.all())
-    # return [cat.products for cat in categories]
+        )
 
 
 @prod_router.post('/', status_code=status.HTTP_201_CREATED)
@@ -90,33 +93,33 @@ async def create_product(db: Annotated[AsyncSession, Depends(get_db)], new_produ
 async def update_product(db: Annotated[AsyncSession, Depends(get_db)], product_slug: str,
                          update_product_model: CreateProduct, get_user: Annotated[dict, Depends(get_current_user)]):
     if get_user.get('is_admin') or get_user.get('is_supplier'):
-    product_update = await db.scalar(select(Product).where(Product.slug == product_slug))
-    if product_update is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='There is no product found'
-        )
-    category = await db.scalar(select(Category).where(Category.id == update_product_model.category))
-    if category is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail='There is no category found'
-        )
+        product_update = await db.scalar(select(Product).where(Product.slug == product_slug))
+        if product_update is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='There is no product found'
+            )
+        category = await db.scalar(select(Category).where(Category.id == update_product_model.category))
+        if category is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='There is no category found'
+            )
 
-    product_update.name = update_product_model.name
-    product_update.description = update_product_model.description
-    product_update.price = update_product_model.price
-    product_update.image_url = update_product_model.image_url
-    product_update.stock = update_product_model.stock
-    product_update.category_id = update_product_model.category
-    product_update.slug = slugify(update_product_model.name)
+        product_update.name = update_product_model.name
+        product_update.description = update_product_model.description
+        product_update.price = update_product_model.price
+        product_update.image_url = update_product_model.image_url
+        product_update.stock = update_product_model.stock
+        product_update.category_id = update_product_model.category
+        product_update.slug = slugify(update_product_model.name)
 
-    await db.commit()
+        await db.commit()
 
-    return {
-        'status_code': status.HTTP_200_OK,
-        'transaction': 'Product update is successful'
-    }
+        return {
+            'status_code': status.HTTP_200_OK,
+            'transaction': 'Product update is successful'
+        }
 
 
 @prod_router.delete('/{product_slug}')
