@@ -5,6 +5,7 @@ from app.routers.auth import user_router
 from app.routers.permissions import perm_router
 import uvicorn
 
+from app.routers.review import review_router
 
 app = FastAPI()
 
@@ -12,6 +13,7 @@ app.include_router(cat_router)
 app.include_router(prod_router)
 app.include_router(user_router)
 app.include_router(perm_router)
+app.include_router(review_router)
 
 
 if __name__ == '__main__':

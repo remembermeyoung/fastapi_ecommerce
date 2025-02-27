@@ -17,5 +17,5 @@ class Review(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     user: Mapped['User'] = relationship(back_populates='reviews')
-    category: Mapped['Product'] = relationship(back_populates='reviews')
+    product: Mapped['Product'] = relationship(back_populates='reviews')
     rating: Mapped['Rating'] = relationship(back_populates='reviews')
